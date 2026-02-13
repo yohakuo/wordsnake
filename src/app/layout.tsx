@@ -1,0 +1,48 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Snake Word Game - English Learning",
+  description: "A fun and educational game combining classic Snake gameplay with English word learning.",
+  keywords: ["Snake Game", "English Learning", "Word Game", "Next.js", "TypeScript", "Tailwind CSS"],
+  authors: [{ name: "Snake Word Game Team" }],
+  openGraph: {
+    title: "Snake Word Game",
+    description: "Learn English words while playing Snake!",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Snake Word Game",
+    description: "Learn English words while playing Snake!",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+      >
+        {children}
+        <Toaster />
+      </body>
+    </html>
+  );
+}

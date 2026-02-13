@@ -1,8 +1,32 @@
 # 🐍 贪吃蛇猜单词项目发布与测试指南
 
-这里有三种方法可以将你的项目发布给朋友测试，你可以根据具体情况选择最适合的一种。
 
-## 方法一：使用 Vercel 部署 (推荐 - 最稳定)
+
+## 使用 GitHub Pages 部署 
+这是你询问的方案，适合纯静态的小游戏，完全免费。
+
+### 核心步骤
+1.  **修改配置 (已由助手自动完成)**:
+    *   `next.config.ts` 已修改为 `output: "export"`。
+    *   **重要**: 如果你的仓库名不是 `你的用户名.github.io` (而是比如 `wordsnake`)，你需要打开 `next.config.ts`，取消 `basePath` 的注释并修改为你的仓库名 (例如 `/wordsnake`)。
+    *   已自动删除了不兼容的 API 路由。
+
+2.  **添加自动部署流程 (已由助手自动完成)**:
+    *   已创建 `.github/workflows/deploy.yml` 文件。只要你推送到 GitHub，它就会自动构建。
+
+3.  **在 GitHub 上启用 Pages**:
+    *   将代码推送到 GitHub 仓库。
+    *   进入仓库 **Settings** (设置) -> **Pages**。
+    *   在 **Build and deployment** 下的 **Source** 选择 **GitHub Actions** (注意：不要选 Deploy from a branch)。
+    *   一旦设置完成，GitHub Actions 会自动运行（可能需要几分钟），完成后你的游戏就会上线。
+
+4.  **关于中国用户访问**:
+    *   GitHub Pages 在中国大陆**可以访问**，但速度可能不稳定。
+    *   如果发现朋友打不开，可以尝试下面介绍的 "Cloudflare Pages" 方案，它通常在国内更快且也很容易配置。
+
+---
+
+## 使用 Vercel 部署 (推荐 - 最稳定)
 这是最标准的方式，你的朋友可以通过一个永久链接随时访问游戏。
 
 ### 步骤
@@ -20,43 +44,46 @@
 
 ---
 
-## 方法二：局域网共享 (最快 - 需在同一 WiFi 下)
-如果你和朋友在一起（连接同一个 WiFi），这是最快的方法，无需任何部署。
+## 🇨🇳 中国大陆用户访问指南 (解决 Vercel 无法访问问题)
 
-### 步骤
-1.  **获取本机 IP 地址**:
-    *   按 `Win + R`，输入 `cmd` 打开命令行。
-    *   输入 `ipconfig` 并回车。
-    *   找到 "无线局域网适配器 WLAN" 下的 "IPv4 地址"，通常是像 `192.168.x.x` 这种格式。
+由于网络环境原因，Vercel 默认提供的 `*.vercel.app` 域名在中国大陆通常会被阻断或访问极其缓慢。以下是几种解决方案：
 
-2.  **启动开发服务器**:
-    在你的 VS Code 终端中运行以下命令（允许局域网访问）：
-    ```bash
-    npm run dev -- -H 0.0.0.0
-    ```
-    *(或者直接使用 `npx next dev -H 0.0.0.0`)*
+### 方案一：绑定自定义域名 (最推荐，如果有域名)
+如果你拥有自己的域名（例如 `mygame.com`），直接在 Vercel 后台绑定它。
+1. 进入 Vercel 项目 -> **Settings** -> **Domains**。
+2. 输入你的域名并添加。
+3. 按照提示在你的域名注册商（阿里云、腾讯云等）处添加 CNAME 记录指向 `cname.vercel-dns.com`。
+*这是最简单的解决方法，自定义域名通常可以正常访问。*
 
-3.  **让朋友连接**:
-    朋友的手机或电脑连接同一个 WiFi，然后在浏览器输入：
-    `http://[你的IP地址]:3000`
-    
-    例如：`http://192.168.1.5:3000`
+### 方案二：使用 Cloudflare Pages (免费且相对稳定)
+Cloudflare 的网络在中国大陆的访问情况通常优于 Vercel 的默认域名。
 
----
+1.  **准备代码**: 确保你的代码已推送到 GitHub。
+2.  **注册/登录**: 访问 [Cloudflare Dashboard](https://dash.cloudflare.com/) 并注册。
+3.  **创建应用**:
+    *   点击左侧菜单 "Workers & Pages"。
+    *   点击 "Create Application" -> "Pages" -> "Connect to Git"。
+    *   选择你的仓库 `wordsnake`。
+4.  **配置构建**:
+    *   **Framework preset**: 选择 `Next.js`。
+    *   **Build command**: `npx @cloudflare/next-on-pages@1` (推荐) 或 `npm run build`。
+    *   **Environment Variables** (环境变量):
+        *   添加 `NODE_VERSION`，值为 `18` (或更高)。
+        *   如果构建报错提示 Prisma 缺少数据库 URL，可以添加一个假的 `DATABASE_URL`，例如 `postgresql://user:password@localhost:5432/db` (因为这是一个纯前端游戏，只有构建时不需要真实连接)。
+5.  **部署**: 点击 "Save and Deploy"。
+6.  **访问**: 部署成功后，Cloudflare 会提供一个 `*.pages.dev` 的域名。
 
-## 方法三：使用内网穿透 (远程测试 - 无需服务器)
-如果朋友不在身边，且你不想配置 Vercel，可以使用工具将你本地的 `localhost:3000` 映射到一个临时公网网址。
+### 方案三：使用 Zeabur (对中国用户友好)
+Zeabur 是一个对中国开发者/用户非常友好的部署平台，服务器位于香港/新加坡等地，速度快且可以直接访问。
 
-**推荐工具**: [Ngrok](https://ngrok.com/), [Cloudflare Tunnel](https://developers.cloudflare.com/pages/how-to/preview-with-cloudflare-tunnel/), 或 [Localtunnel](https://github.com/localtunnel/localtunnel).
+1.  访问 [Zeabur](https://zeabur.com/) 并使用 GitHub 登录。
+2.  点击 "Create Project" (创建项目)。
+3.  选择 "Deploy New Service" (部署新服务) -> "Git"。
+4.  选择你的仓库 `wordsnake`。
+5.  Zeabur 会自动识别 Next.js 项目并开始构建。
+6.  部署完成后，在 "Networking" (网络) 选项卡中生成一个免费域名 (例如 `*.zeabur.app`)。
+*通常这个域名在中国大陆可以直接访问。*
 
-以 **Localtunnel** 为例 (最简单，无需注册):
-
-1.  **启动本地服务**: 确保你的项目正在运行 (`npm run dev`)。
-2.  **启动隧道**:
-    打开一个新的终端窗口，运行：
-    ```bash
-    npx localtunnel --port 3000
-    ```
-3.  **分享链接**:
-    终端会显示一个 `https://xxxx.loca.lt` 的链接，发给朋友即可访问。
-    *(首次访问可能需要点击确认为安全链接)*
+### 方案四：Netlify (备选)
+Netlify 的 `*.netlify.app` 域名有时比 Vercel 好用，但也不保证 100% 稳定。
+部署流程与 Vercel 类似：拖入文件夹或连接 GitHub 即可。
